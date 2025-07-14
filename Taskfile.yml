@@ -53,3 +53,9 @@ tasks:
     deps: [test-download]
     cmds:
       - cd tests && go run ./cmd/datastar-sdk-tests -server http://localhost:{{.TEST_PORT}}
+
+  hello:
+    desc: Run helloworld example
+    dir: cmd/examples/helloworld
+    cmds:
+      - go run .

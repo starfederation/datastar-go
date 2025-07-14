@@ -2,6 +2,8 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -11,6 +13,8 @@ import (
 
 //go:embed hello-world.html
 var helloWorldHTML []byte
+
+const port = 1337
 
 func main() {
 	r := chi.NewRouter()
@@ -39,5 +43,9 @@ func main() {
 		}
 	})
 
-	http.ListenAndServe(":8080", r)
+	log.Printf("Starting server on http://localhost:%d", port)
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), r); err != nil {
+		panic(err)
+	}
 }

@@ -1,3 +1,20 @@
 .task
 .claude
 tests
+
+# Binaries
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+*.test
+
+# Go binaries
+cmd/examples/helloworld/helloworld
+**/bin/
+**/dist/
+
+# Go build artifacts
+*.o
+*.a
