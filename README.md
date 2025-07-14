@@ -1,4 +1,4 @@
-<p align="center"><img width="256" height="256" src="https://data-star.dev/static/images/rocket-animated.gif" style="image-rendering: pixelated;"></p>
+<p align="center"><img width="150" height="150" src="https://data-star.dev/static/images/rocket-512x512.png"></p>
 
 # Datastar Go SDK
 
