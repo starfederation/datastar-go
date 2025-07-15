@@ -1,7 +1,7 @@
 version: "3"
 
 vars:
-  VERSION: 1.0.0
+  VERSION: 1.0.1
   GENERATE_DIR: "cmd/generate"
   DATASTAR_BRANCH: '{{.DATASTAR_BRANCH | default "repo-per-sdk"}}'
   TEST_PORT: '{{.TEST_PORT | default "7331"}}'
@@ -37,7 +37,7 @@ tasks:
       - main.go
       - ../../datastar/**/*.go
     env:
-      TEST_PORT: '{{.TEST_PORT}}'
+      TEST_PORT: "{{.TEST_PORT}}"
 
   test-download:
     desc: Download SDK test suite from GitHub

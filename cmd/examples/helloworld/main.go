@@ -38,7 +38,9 @@ func main() {
 		sse := datastar.NewSSE(w, r)
 
 		for i := 0; i < len(message); i++ {
-			sse.PatchElements(`<div id="message">` + message[:i+1] + `</div>`)
+			if err := sse.PatchElements(`<div id="message">` + message[:i+1] + `</div>`); err != nil {
+				return
+			}
 			time.Sleep(store.Delay * time.Millisecond)
 		}
 	})

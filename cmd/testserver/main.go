@@ -55,6 +55,12 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Process each event
 	for _, event := range req.Events {
+		// Check if connection is closed before processing each event
+		if sse.IsClosed() {
+			log.Printf("SSE connection closed, stopping event processing")
+			return
+		}
+
 		switch event.Type {
 		case "patchElements":
 			if err := handlePatchElements(sse, event); err != nil {

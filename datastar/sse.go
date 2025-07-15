@@ -78,6 +78,13 @@ func (sse *ServerSentEventGenerator) Context() context.Context {
 	return sse.ctx
 }
 
+// IsClosed returns true if the context has been cancelled or the connection is closed.
+// This is useful for checking if the SSE connection is still active before
+// performing expensive operations.
+func (sse *ServerSentEventGenerator) IsClosed() bool {
+	return sse.ctx.Err() != nil
+}
+
 // serverSentEventData holds event configuration data for
 // [SSEEventOption]s.
 type serverSentEventData struct {
@@ -124,6 +131,11 @@ func writeJustError(w io.Writer, b []byte) (err error) {
 // Send emits a server-sent event to the client. Method is safe for
 // concurrent use.
 func (sse *ServerSentEventGenerator) Send(eventType EventType, dataLines []string, opts ...SSEEventOption) error {
+	// Check if context is cancelled before attempting to send
+	if err := sse.ctx.Err(); err != nil {
+		return fmt.Errorf("context cancelled: %w", err)
+	}
+
 	sse.mu.Lock()
 	defer sse.mu.Unlock()
 
