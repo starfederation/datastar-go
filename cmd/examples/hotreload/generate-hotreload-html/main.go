@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	cdn = "https://cdn.jsdelivr.net/gh/starfederation/datastar@develop/bundles/datastar.js"
+	cdn = "https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js"
 )
 
 // generates an hotreload.html file to be used to play with the hotreload example
