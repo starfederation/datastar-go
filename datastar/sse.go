@@ -29,6 +29,15 @@ type ServerSentEventGenerator struct {
 // HTTP Server-Sent Event stream.
 type SSEOption func(*ServerSentEventGenerator)
 
+// Allows setting a new, more specific context
+// Must always be a context derived from the request context (not enforced)
+// Useful for setting values to be read by templ components
+func WithContext(ctx context.Context) SSEOption {
+	return func(sse *ServerSentEventGenerator) {
+		sse.ctx = ctx
+	}
+}
+
 // NewSSE upgrades an [http.ResponseWriter] to an HTTP Server-Sent Event stream.
 // The connection is kept alive until the context is canceled or the response is closed by returning from the handler.
 // Run an event loop for persistent streaming.
