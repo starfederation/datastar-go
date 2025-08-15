@@ -58,4 +58,13 @@ tasks:
     desc: Run helloworld example
     dir: cmd/examples/helloworld
     cmds:
+      - go mod tidy
       - go run .
+
+  hotreload:
+    desc: Run hotreload example
+    dir: cmd/examples/hotreload
+    cmds:
+      - go mod tidy
+      - go run generate-hotreload-html/main.go
+      - go tool reflex -r '^hotreload.html$' --start-service -- sh -c 'go run .'
