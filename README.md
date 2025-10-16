@@ -53,7 +53,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
     sse.RemoveElements("#temporary-element")
 
     // Patch signals (update client-side state)
-    sse.PatchSignals(map[string]any{
+    sse.MarshalAndPatchSignals(map[string]any{
         "message": "Updated message",
         "count":   store.Count + 1,
     })
