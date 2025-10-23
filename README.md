@@ -50,7 +50,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
     sse.PatchElements(`<div id="output">Hello from Datastar!</div>`)
 
     // Remove elements from the DOM
-    sse.RemoveElements("#temporary-element")
+    sse.RemoveElement("#temporary-element")
 
     // Patch signals (update client-side state)
     sse.MarshalAndPatchSignals(map[string]any{
