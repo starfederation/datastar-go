@@ -22,6 +22,7 @@ func toPascalCase(s string) string {
 		"onlyIfMissing":              "OnlyIfMissing",
 		"selector":                   "Selector",
 		"mode":                       "Mode",
+		"namespace":                  "Namespace",
 		"elements":                   "Elements",
 		"signals":                    "Signals",
 		"outer":                      "Outer",

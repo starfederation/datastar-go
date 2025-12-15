@@ -20,6 +20,13 @@ var ValidElementPatchModes = []ElementPatchMode{
 	ElementPatchModeReplace,
 }
 
+// ValidNamespaces is a list of valid namespaces.
+var ValidNamespaces = []Namespace{
+	NamespaceHTML,
+	NamespaceSVG,
+	NamespaceMathML,
+}
+
 // ElementPatchModeFromString converts a string to a [ElementPatchMode].
 func ElementPatchModeFromString(s string) (ElementPatchMode, error) {
 	switch s {
@@ -42,6 +49,26 @@ func ElementPatchModeFromString(s string) (ElementPatchMode, error) {
 	default:
 		return "", fmt.Errorf("invalid element merge type: %s", s)
 	}
+}
+
+// NamespaceFromString converts a string to a [Namespace].
+func NamespaceFromString(s string) (Namespace, error) {
+	switch s {
+	case "html":
+		return NamespaceHTML, nil
+	case "svg":
+		return NamespaceSVG, nil
+	case "mathml":
+		return NamespaceMathML, nil
+	default:
+		return "", fmt.Errorf("invalid namespace: %s", s)
+	}
+}
+
+// WithSelectorID is a convenience wrapper for [WithSelector] option
+// equivalent to calling `WithSelector("#"+id)`.
+func WithSelectorID(id string) PatchElementOption {
+	return WithSelector("#" + id)
 }
 
 // WithModeOuter creates a PatchElementOption that merges elements using the outer mode.
@@ -85,10 +112,19 @@ func WithModeReplace() PatchElementOption {
 	return WithMode(ElementPatchModeReplace)
 }
 
-// WithSelectorID is a convenience wrapper for [WithSelector] option
-// equivalent to calling `WithSelector("#"+id)`.
-func WithSelectorID(id string) PatchElementOption {
-	return WithSelector("#" + id)
+// WithNamespaceHTML specifies the HTML namespace for the elements being patched.
+func WithNamespaceHTML() PatchElementOption {
+	return WithNamespace(NamespaceHTML)
+}
+
+// WithNamespace specifies the XML namespace for the elements being patched.
+func WithNamespaceSVG() PatchElementOption {
+	return WithNamespace(NamespaceSVG)
+}
+
+// WithNamespaceMathML specifies the MathML namespace for the elements being patched.
+func WithNamespaceMathML() PatchElementOption {
+	return WithNamespace(NamespaceMathML)
 }
 
 // WithViewTransitions enables the use of view transitions when merging elements.
