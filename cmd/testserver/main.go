@@ -20,7 +20,8 @@ type Event struct {
 	Elements         string `json:"elements,omitempty"`
 	Selector         string `json:"selector,omitempty"`
 	Mode             string `json:"mode,omitempty"`
-	UseViewTransition *bool  `json:"useViewTransition,omitempty"`
+	Namespace        string `json:"namespace,omitempty"`
+	UseViewTransition *bool `json:"useViewTransition,omitempty"`
 	
 	// PatchSignals fields
 	Signals    json.RawMessage `json:"signals,omitempty"`
@@ -112,6 +113,17 @@ func handlePatchElements(sse *datastar.ServerSentEventGenerator, event Event) er
 		}
 	}
 	
+	if event.Namespace != "" {
+		switch event.Namespace {
+		case "html":
+			opts = append(opts, datastar.WithNamespace(datastar.NamespaceHTML))
+		case "svg":
+			opts = append(opts, datastar.WithNamespace(datastar.NamespaceSVG))
+		case "mathml":
+			opts = append(opts, datastar.WithNamespace(datastar.NamespaceMathML))
+		}
+	}
+
 	if event.UseViewTransition != nil {
 		opts = append(opts, datastar.WithUseViewTransitions(*event.UseViewTransition))
 	}

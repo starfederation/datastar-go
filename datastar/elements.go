@@ -13,6 +13,7 @@ type patchElementOptions struct {
 	RetryDuration      time.Duration
 	Selector           string
 	Mode               ElementPatchMode
+	Namespace		   Namespace
 	UseViewTransitions bool
 }
 
@@ -52,6 +53,14 @@ func WithSelector(selector string) PatchElementOption {
 func WithMode(merge ElementPatchMode) PatchElementOption {
 	return func(o *patchElementOptions) {
 		o.Mode = merge
+	}
+}
+
+// WithNamespace specifies the namespace for the element.
+// Choose a valid [Namespace].
+func WithNamespace(namespace Namespace) PatchElementOption {
+	return func(o *patchElementOptions) {
+		o.Namespace = namespace
 	}
 }
 
@@ -97,6 +106,9 @@ func (sse *ServerSentEventGenerator) PatchElements(elements string, opts ...Patc
 	}
 	if options.Mode != ElementPatchModeOuter {
 		dataRows = append(dataRows, ModeDatalineLiteral+string(options.Mode))
+	}
+	if options.Namespace != "" && options.Namespace != NamespaceHTML {
+		dataRows = append(dataRows, NamespaceDatalineLiteral+string(options.Namespace))
 	}
 	if options.UseViewTransitions {
 		dataRows = append(dataRows, UseViewTransitionDatalineLiteral+"true")
