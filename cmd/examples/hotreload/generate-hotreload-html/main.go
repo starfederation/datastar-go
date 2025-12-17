@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	cdn = "https://cdn.jsdelivr.net/gh/starfederation/datastar@main/bundles/datastar.js"
+	cdn = "https://cdn.jsdelivr.net/gh/starfederation/datastar@1.0.0-RC.7/bundles/datastar.js"
 )
 
 // generates an hotreload.html file to be used to play with the hotreload example
@@ -20,7 +20,7 @@ func main() {
 </head>
 
 <!-- next line mounts the refresh script -->
-<body data-on-load="@get('/hotreload', {retryInterval: 100})">
+<body data-init="@get('/hotreload', {retryInterval: 100, retry: 'always'})">
 	<main>
 		<p>
 			This page will automatically reload on any change to the hotreload.html file. Update this paragraph, save changes, and
