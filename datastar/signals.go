@@ -94,7 +94,7 @@ func (sse *ServerSentEventGenerator) PatchSignals(signalsContents []byte, opts .
 func ReadSignals(r *http.Request, signals any) error {
 	var dsInput []byte
 
-	if r.Method == "GET" {
+	if r.Method == "GET" || r.Method == "DELETE" {
 		dsJSON := r.URL.Query().Get(DatastarKey)
 		if dsJSON == "" {
 			return nil
