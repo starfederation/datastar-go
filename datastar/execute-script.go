@@ -259,18 +259,20 @@ func (sse *ServerSentEventGenerator) DispatchCustomEvent(eventName string, detai
 	}
 
 	js := fmt.Sprintf(`
-const elements = %s
+{
+	const elements = %s
 
-const event = new CustomEvent(%q, {
-	bubbles: %t,
-	cancelable: %t,
-	composed: %t,
-	detail: %s,
-});
+	const event = new CustomEvent(%q, {
+		bubbles: %t,
+		cancelable: %t,
+		composed: %t,
+		detail: %s,
+	});
 
-elements.forEach((element) => {
-	element.dispatchEvent(event);
-});
+	elements.forEach((element) => {
+		element.dispatchEvent(event);
+	});
+}
 	`,
 		elementsJS,
 		eventName,
