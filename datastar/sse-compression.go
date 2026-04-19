@@ -234,7 +234,7 @@ func WithForced() CompressionOption {
 func WithCompression(opts ...CompressionOption) SSEOption {
 	return func(sse *ServerSentEventGenerator) {
 		cfg := &compressionOptions{
-			CompressionStrategy: ClientPriority,
+			CompressionStrategy: ServerPriority,
 			ClientEncodings:     parseEncodings(sse.acceptEncoding),
 		}
 
@@ -252,9 +252,9 @@ func WithCompression(opts ...CompressionOption) SSEOption {
 		}
 
 		switch cfg.CompressionStrategy {
-		case ClientPriority:
-			for _, clientEnc := range cfg.ClientEncodings {
-				for _, comp := range cfg.Compressors {
+		case ServerPriority:
+			for _, comp := range cfg.Compressors {
+				for _, clientEnc := range cfg.ClientEncodings {
 					if comp.Encoding == clientEnc {
 						sse.w = comp.Compressor.Get(sse.w)
 						sse.encoding = comp.Encoding
@@ -262,9 +262,9 @@ func WithCompression(opts ...CompressionOption) SSEOption {
 					}
 				}
 			}
-		case ServerPriority:
-			for _, comp := range cfg.Compressors {
-				for _, clientEnc := range cfg.ClientEncodings {
+		case ClientPriority:
+			for _, clientEnc := range cfg.ClientEncodings {
+				for _, comp := range cfg.Compressors {
 					if comp.Encoding == clientEnc {
 						sse.w = comp.Compressor.Get(sse.w)
 						sse.encoding = comp.Encoding
