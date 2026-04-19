@@ -234,7 +234,7 @@ func WithForced() CompressionOption {
 func WithCompression(opts ...CompressionOption) SSEOption {
 	return func(sse *ServerSentEventGenerator) {
 		cfg := &compressionOptions{
-			CompressionStrategy: ClientPriority,
+			CompressionStrategy: ServerPriority,
 			ClientEncodings:     parseEncodings(sse.acceptEncoding),
 		}
 
