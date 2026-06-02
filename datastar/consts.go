@@ -10,6 +10,7 @@ const (
 	ModeDatalineLiteral = "mode "
 	NamespaceDatalineLiteral = "namespace "
 	UseViewTransitionDatalineLiteral = "useViewTransition "
+	ViewTransitionSelectorDatalineLiteral = "viewTransitionSelector "
 	ElementsDatalineLiteral = "elements "
 	SignalsDatalineLiteral = "signals "
 	OnlyIfMissingDatalineLiteral = "onlyIfMissing "

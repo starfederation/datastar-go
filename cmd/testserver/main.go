@@ -15,24 +15,25 @@ import (
 // Event represents a test event from the SDK test suite
 type Event struct {
 	Type string `json:"type"`
-	
+
 	// PatchElements fields
-	Elements         string `json:"elements,omitempty"`
-	Selector         string `json:"selector,omitempty"`
-	Mode             string `json:"mode,omitempty"`
-	Namespace        string `json:"namespace,omitempty"`
-	UseViewTransition *bool `json:"useViewTransition,omitempty"`
-	
+	Elements               string `json:"elements,omitempty"`
+	Selector               string `json:"selector,omitempty"`
+	Mode                   string `json:"mode,omitempty"`
+	Namespace              string `json:"namespace,omitempty"`
+	UseViewTransition      *bool  `json:"useViewTransition,omitempty"`
+	ViewTransitionSelector string `json:"viewTransitionSelector,omitempty"`
+
 	// PatchSignals fields
-	Signals    json.RawMessage `json:"signals,omitempty"`
-	SignalsRaw string          `json:"signals-raw,omitempty"`
-	OnlyIfMissing *bool        `json:"onlyIfMissing,omitempty"`
-	
+	Signals       json.RawMessage `json:"signals,omitempty"`
+	SignalsRaw    string          `json:"signals-raw,omitempty"`
+	OnlyIfMissing *bool           `json:"onlyIfMissing,omitempty"`
+
 	// ExecuteScript fields
 	Script     string          `json:"script,omitempty"`
 	AutoRemove *bool           `json:"autoRemove,omitempty"`
 	Attributes json.RawMessage `json:"attributes,omitempty"`
-	
+
 	// Common fields
 	EventID       string `json:"eventId,omitempty"`
 	RetryDuration int    `json:"retryDuration,omitempty"`
@@ -67,17 +68,17 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 			if err := handlePatchElements(sse, event); err != nil {
 				log.Printf("Error handling patchElements: %v", err)
 			}
-			
+
 		case "patchSignals":
 			if err := handlePatchSignals(sse, event); err != nil {
 				log.Printf("Error handling patchSignals: %v", err)
 			}
-			
+
 		case "executeScript":
 			if err := handleExecuteScript(sse, event); err != nil {
 				log.Printf("Error handling executeScript: %v", err)
 			}
-			
+
 		default:
 			log.Printf("Unknown event type: %s", event.Type)
 		}
@@ -87,11 +88,11 @@ func testHandler(w http.ResponseWriter, r *http.Request) {
 func handlePatchElements(sse *datastar.ServerSentEventGenerator, event Event) error {
 	// Build options
 	opts := []datastar.PatchElementOption{}
-	
+
 	if event.Selector != "" {
 		opts = append(opts, datastar.WithSelector(event.Selector))
 	}
-	
+
 	if event.Mode != "" {
 		switch event.Mode {
 		case "outer":
@@ -112,7 +113,7 @@ func handlePatchElements(sse *datastar.ServerSentEventGenerator, event Event) er
 			opts = append(opts, datastar.WithModeAfter())
 		}
 	}
-	
+
 	if event.Namespace != "" {
 		switch event.Namespace {
 		case "html":
@@ -126,35 +127,39 @@ func handlePatchElements(sse *datastar.ServerSentEventGenerator, event Event) er
 
 	if event.UseViewTransition != nil {
 		opts = append(opts, datastar.WithUseViewTransitions(*event.UseViewTransition))
+
+		if *event.UseViewTransition && event.ViewTransitionSelector != "" {
+			opts = append(opts, datastar.WithViewTransitionSelector(event.ViewTransitionSelector))
+		}
 	}
-	
+
 	if event.EventID != "" {
 		opts = append(opts, datastar.WithPatchElementsEventID(event.EventID))
 	}
-	
+
 	if event.RetryDuration > 0 {
 		opts = append(opts, datastar.WithRetryDuration(time.Duration(event.RetryDuration)*time.Millisecond))
 	}
-	
+
 	return sse.PatchElements(event.Elements, opts...)
 }
 
 func handlePatchSignals(sse *datastar.ServerSentEventGenerator, event Event) error {
 	// Build options
 	opts := []datastar.PatchSignalsOption{}
-	
+
 	if event.OnlyIfMissing != nil {
 		opts = append(opts, datastar.WithOnlyIfMissing(*event.OnlyIfMissing))
 	}
-	
+
 	if event.EventID != "" {
 		opts = append(opts, datastar.WithPatchSignalsEventID(event.EventID))
 	}
-	
+
 	if event.RetryDuration > 0 {
 		opts = append(opts, datastar.WithPatchSignalsRetryDuration(time.Duration(event.RetryDuration)*time.Millisecond))
 	}
-	
+
 	// Handle signals-raw for multiline signals
 	var signalsData []byte
 	if event.SignalsRaw != "" {
@@ -175,24 +180,24 @@ func handlePatchSignals(sse *datastar.ServerSentEventGenerator, event Event) err
 	} else {
 		signalsData = []byte("{}")
 	}
-	
+
 	return sse.PatchSignals(signalsData, opts...)
 }
 
 func handleExecuteScript(sse *datastar.ServerSentEventGenerator, event Event) error {
 	// Build options
 	opts := []datastar.ExecuteScriptOption{}
-	
+
 	if event.AutoRemove != nil {
 		opts = append(opts, datastar.WithExecuteScriptAutoRemove(*event.AutoRemove))
 	}
-	
+
 	if len(event.Attributes) > 0 {
 		// Parse attributes preserving order from JSON
 		// Since we need to preserve order and the test expects specific ordering,
 		// we'll hardcode the expected order for the test case
 		attrs := []string{}
-		
+
 		// Parse the raw JSON to get the attributes
 		var attrMap map[string]interface{}
 		if err := json.Unmarshal(event.Attributes, &attrMap); err == nil {
@@ -210,36 +215,36 @@ func handleExecuteScript(sse *datastar.ServerSentEventGenerator, event Event) er
 				}
 			}
 		}
-		
+
 		if len(attrs) > 0 {
 			opts = append(opts, datastar.WithExecuteScriptAttributes(attrs...))
 		}
 	}
-	
+
 	if event.EventID != "" {
 		opts = append(opts, datastar.WithExecuteScriptEventID(event.EventID))
 	}
-	
+
 	if event.RetryDuration > 0 {
 		opts = append(opts, datastar.WithExecuteScriptRetryDuration(time.Duration(event.RetryDuration)*time.Millisecond))
 	}
-	
+
 	// Handle multiline scripts by preserving line breaks
 	script := strings.ReplaceAll(event.Script, "\\n", "\n")
-	
+
 	return sse.ExecuteScript(script, opts...)
 }
 
 func main() {
 	http.HandleFunc("/test", testHandler)
-	
+
 	port := os.Getenv("TEST_PORT")
 	if port == "" {
 		port = "7331"
 	}
 	addr := ":" + port
 	log.Printf("Test server starting on %s", addr)
-	
+
 	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatal(err)
 	}
