@@ -9,12 +9,13 @@ import (
 // patchElementOptions holds the configuration data for [PatchElementOption]s used
 // for initialization of [sse.PatchElements] event.
 type patchElementOptions struct {
-	EventID            string
-	RetryDuration      time.Duration
-	Selector           string
-	Mode               ElementPatchMode
-	Namespace		   Namespace
-	UseViewTransitions bool
+	EventID                string
+	RetryDuration          time.Duration
+	Selector               string
+	Mode                   ElementPatchMode
+	Namespace              Namespace
+	UseViewTransitions     bool
+	ViewTransitionSelector string
 }
 
 // PatchElementOption configures the [sse.PatchElements] event initialization.
@@ -73,6 +74,15 @@ func WithUseViewTransitions(useViewTransition bool) PatchElementOption {
 	}
 }
 
+// WithViewTransitionSelector specifies the selector to use for [element-scoped view transitions] when merging elements.
+//
+// [element-scoped view transitions]: https://developer.chrome.com/blog/element-scoped-view-transitions
+func WithViewTransitionSelector(selector string) PatchElementOption {
+	return func(o *patchElementOptions) {
+		o.ViewTransitionSelector = selector
+	}
+}
+
 // WithRetryDuration overrides the [DefaultSseRetryDuration] for the element patch event.
 func WithRetryDuration(retryDuration time.Duration) PatchElementOption {
 	return func(o *patchElementOptions) {
@@ -112,6 +122,10 @@ func (sse *ServerSentEventGenerator) PatchElements(elements string, opts ...Patc
 	}
 	if options.UseViewTransitions {
 		dataRows = append(dataRows, UseViewTransitionDatalineLiteral+"true")
+		
+		if options.ViewTransitionSelector != "" {
+			dataRows = append(dataRows, ViewTransitionSelectorDatalineLiteral+options.ViewTransitionSelector)
+		}
 	}
 
 	if elements != "" {
