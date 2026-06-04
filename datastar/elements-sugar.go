@@ -147,48 +147,56 @@ func (sse *ServerSentEventGenerator) PatchElementf(format string, args ...any) e
 	return sse.PatchElements(fmt.Sprintf(format, args...))
 }
 
-// TemplComponent satisfies the component rendering interface for HTML template engine [Templ].
-// This separate type ensures compatibility with [Templ] without imposing a dependency requirement
-// on those who prefer to use a different template engine.
-//
-// [Templ]: https://templ.guide/
-type TemplComponent interface {
-	Render(ctx context.Context, w io.Writer) error
-}
-
-// PatchElementTempl is a convenience adaptor of [sse.PatchElements] for [TemplComponent].
-func (sse *ServerSentEventGenerator) PatchElementTempl(c TemplComponent, opts ...PatchElementOption) error {
-	buf := bytebufferpool.Get()
-	defer bytebufferpool.Put(buf)
-	if err := c.Render(sse.Context(), buf); err != nil {
-		return fmt.Errorf("failed to patch element: %w", err)
-	}
-	if err := sse.PatchElements(buf.String(), opts...); err != nil {
-		return fmt.Errorf("failed to patch element: %w", err)
-	}
-	return nil
-}
-
-// GoStarElementRenderer satisfies the component rendering interface for HTML template engine [GoStar].
-// This separate type ensures compatibility with [GoStar] without imposing a dependency requirement
-// on those who prefer to use a different template engine.
-//
-// [GoStar]: https://github.com/delaneyj/gostar
-type GoStarElementRenderer interface {
+// ElementRenderer satisfies the component rendering interface for HTML template engines.
+// This separate type ensures compatibility without imposing a dependency requirement
+type ElementRenderer interface {
 	Render(w io.Writer) error
 }
 
-// PatchElementGostar is a convenience adaptor of [sse.PatchElements] for [GoStarElementRenderer].
-func (sse *ServerSentEventGenerator) PatchElementGostar(child GoStarElementRenderer, opts ...PatchElementOption) error {
+// PatchElementRenderer is a convenience adaptor of [sse.PatchElements] for [ElementRenderer].
+func (sse *ServerSentEventGenerator) PatchElementRenderer(r ElementRenderer, opts ...PatchElementOption) error {
 	buf := bytebufferpool.Get()
 	defer bytebufferpool.Put(buf)
-	if err := child.Render(buf); err != nil {
+	if err := r.Render(buf); err != nil {
 		return fmt.Errorf("failed to render: %w", err)
 	}
 	if err := sse.PatchElements(buf.String(), opts...); err != nil {
 		return fmt.Errorf("failed to patch element: %w", err)
 	}
 	return nil
+}
+
+// PatchElementGostar is a convenience adaptor of [sse.PatchElements] for [GoStar] elementRenderers.
+//
+// [GoStar]: https://github.com/delaneyj/gostar
+func (sse *ServerSentEventGenerator) PatchElementGostar(r ElementRenderer, opts ...PatchElementOption) error {
+	return sse.PatchElementRenderer(r, opts...)
+}
+
+// ElementRendererWithContext satisfies the component rendering interface for HTML template engines.
+// This separate type ensures compatibility without imposing a dependency requirement
+type ElementRendererWithContext interface {
+	Render(ctx context.Context, w io.Writer) error
+}
+
+// PatchElementRendererWithContext is a convenience adaptor of [sse.PatchElements] for [ElementRendererWithContext].
+func (sse *ServerSentEventGenerator) PatchElementRendererWithContext(r ElementRendererWithContext, opts ...PatchElementOption) error {
+	buf := bytebufferpool.Get()
+	defer bytebufferpool.Put(buf)
+	if err := r.Render(sse.Context(), buf); err != nil {
+		return fmt.Errorf("failed to render element: %w", err)
+	}
+	if err := sse.PatchElements(buf.String(), opts...); err != nil {
+		return fmt.Errorf("failed to patch element: %w", err)
+	}
+	return nil
+}
+
+// PatchElementTempl is a convenience adaptor of [sse.PatchElements] for [Templ] components.
+//
+// [Templ]: https://templ.guide/
+func (sse *ServerSentEventGenerator) PatchElementTempl(r ElementRendererWithContext, opts ...PatchElementOption) error {
+	return sse.PatchElementRendererWithContext(r, opts...)
 }
 
 // GetSSE is a convenience method for generating Datastar backend [get] action attribute.
