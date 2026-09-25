@@ -1,6 +1,7 @@
 package datastar
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/CAFxX/httpcompression/contrib/andybalholm/brotli"
@@ -254,12 +255,10 @@ func WithCompression(opts ...CompressionOption) SSEOption {
 		switch cfg.CompressionStrategy {
 		case ServerPriority:
 			for _, comp := range cfg.Compressors {
-				for _, clientEnc := range cfg.ClientEncodings {
-					if comp.Encoding == clientEnc {
-						sse.w = comp.Compressor.Get(sse.w)
-						sse.encoding = comp.Encoding
-						return
-					}
+				if slices.Contains(cfg.ClientEncodings, comp.Encoding) {
+					sse.w = comp.Compressor.Get(sse.w)
+					sse.encoding = comp.Encoding
+					return
 				}
 			}
 		case ClientPriority:
@@ -285,7 +284,7 @@ func parseEncodings(header string) []string {
 	parts := strings.Split(header, ",")
 	var tokens []string
 	for _, part := range parts {
-		token := strings.SplitN(strings.TrimSpace(part), ";", 2)[0]
+		token, _, _ := strings.Cut(strings.TrimSpace(part), ";")
 		if token != "" {
 			tokens = append(tokens, token)
 		}

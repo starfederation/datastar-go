@@ -168,7 +168,7 @@ func handlePatchSignals(sse *datastar.ServerSentEventGenerator, event Event) err
 	} else if event.Signals != nil {
 		// Ensure compact JSON output (no pretty printing)
 		// Re-marshal to ensure compact format
-		var temp interface{}
+		var temp any
 		if err := json.Unmarshal(event.Signals, &temp); err != nil {
 			return fmt.Errorf("failed to unmarshal signals: %w", err)
 		}
@@ -199,7 +199,7 @@ func handleExecuteScript(sse *datastar.ServerSentEventGenerator, event Event) er
 		attrs := []string{}
 
 		// Parse the raw JSON to get the attributes
-		var attrMap map[string]interface{}
+		var attrMap map[string]any
 		if err := json.Unmarshal(event.Attributes, &attrMap); err == nil {
 			// For the test case, we know it expects "type" then "blocking"
 			if val, ok := attrMap["type"]; ok {

@@ -122,15 +122,15 @@ func (sse *ServerSentEventGenerator) PatchElements(elements string, opts ...Patc
 	}
 	if options.UseViewTransitions {
 		dataRows = append(dataRows, UseViewTransitionDatalineLiteral+"true")
-		
+
 		if options.ViewTransitionSelector != "" {
 			dataRows = append(dataRows, ViewTransitionSelectorDatalineLiteral+options.ViewTransitionSelector)
 		}
 	}
 
 	if elements != "" {
-		parts := strings.Split(elements, "\n")
-		for _, part := range parts {
+		parts := strings.SplitSeq(elements, "\n")
+		for part := range parts {
 			dataRows = append(dataRows, ElementsDatalineLiteral+part)
 		}
 	}
