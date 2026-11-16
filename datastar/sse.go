@@ -160,6 +160,20 @@ func (sse *ServerSentEventGenerator) Send(eventType EventType, dataLines []strin
 		opt(&evt)
 	}
 
+	// Each field below is written as one line, so a line terminator inside it
+	// would start a line the client parses as a new field or event.
+	if err := rejectLineTerminators("event type", string(evt.Type)); err != nil {
+		return err
+	}
+	if err := rejectLineTerminators("event id", evt.EventID); err != nil {
+		return err
+	}
+	for _, d := range evt.Data {
+		if err := rejectLineTerminators("data line", d); err != nil {
+			return err
+		}
+	}
+
 	buf := bytebufferpool.Get()
 	defer bytebufferpool.Put(buf)
 

@@ -62,7 +62,7 @@ func (sse *ServerSentEventGenerator) PatchSignals(signalsContents []byte, opts .
 	if options.OnlyIfMissing {
 		dataRows = append(dataRows, OnlyIfMissingDatalineLiteral+strconv.FormatBool(options.OnlyIfMissing))
 	}
-	lines := bytes.SplitSeq(signalsContents, newLineBuf)
+	lines := bytes.SplitSeq(normalizeLineTerminators(signalsContents), newLineBuf)
 	for line := range lines {
 		dataRows = append(dataRows, SignalsDatalineLiteral+string(line))
 	}

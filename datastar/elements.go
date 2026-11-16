@@ -129,7 +129,7 @@ func (sse *ServerSentEventGenerator) PatchElements(elements string, opts ...Patc
 	}
 
 	if elements != "" {
-		parts := strings.Split(elements, "\n")
+		parts := strings.Split(lineTerminatorsToNewLine.Replace(elements), NewLine)
 		for _, part := range parts {
 			dataRows = append(dataRows, ElementsDatalineLiteral+part)
 		}
